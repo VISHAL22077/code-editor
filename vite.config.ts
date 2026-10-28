@@ -5,6 +5,9 @@ import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
   return {
+    // GitHub Pages serves this repository below /code-editor/, while the
+    // desktop and Express builds serve it from the domain root.
+    base: process.env.GITHUB_PAGES === 'true' ? '/code-editor/' : '/',
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
