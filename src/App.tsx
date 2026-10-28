@@ -33,6 +33,48 @@ const HELLO_WORLD_BY_LANGUAGE: Record<Language, string> = {
 const hasBackendApi =
   typeof window === "undefined" || !window.location.hostname.endsWith(".github.io");
 
+type BrowserRunResult = { success: boolean; output: string };
+
+function runJavaScriptInBrowser(source: string): Promise<BrowserRunResult> {
+  return new Promise((resolve) => {
+    const workerSource = `
+      self.onmessage = ({ data }) => {
+        const lines = [];
+        const format = (value) => {
+          if (typeof value === 'string') return value;
+          try { return JSON.stringify(value); } catch { return String(value); }
+        };
+        const output = (...values) => lines.push(values.map(format).join(' '));
+        try {
+          const result = Function('console', data)({ log: output, info: output, warn: output, error: output });
+          Promise.resolve(result).then((value) => {
+            if (value !== undefined) output(value);
+            self.postMessage({ success: true, output: lines.join('\\n') || 'Program completed with no output.' });
+          }).catch((error) => self.postMessage({ success: false, output: error?.stack || String(error) }));
+        } catch (error) {
+          self.postMessage({ success: false, output: error?.stack || String(error) });
+        }
+      };
+    `;
+    const workerUrl = URL.createObjectURL(new Blob([workerSource], { type: "text/javascript" }));
+    const worker = new Worker(workerUrl);
+    const finish = (result: BrowserRunResult) => {
+      clearTimeout(timeout);
+      worker.terminate();
+      URL.revokeObjectURL(workerUrl);
+      resolve(result);
+    };
+    const timeout = window.setTimeout(
+      () => finish({ success: false, output: "Execution stopped after 5 seconds." }),
+      5_000,
+    );
+
+    worker.onmessage = (event: MessageEvent<BrowserRunResult>) => finish(event.data);
+    worker.onerror = (event) => finish({ success: false, output: event.message || "Could not start the JavaScript runner." });
+    worker.postMessage(source);
+  });
+}
+
 function resolveErrorLineIndex(lines: string[], error: CodeError): number | null {
   const reportedIndex = error.line - 1;
   const snippet = error.codeSnippet.trim();
@@ -119,8 +161,8 @@ function applyAutoCorrection(code: string, error: CodeError): string | null {
 
 export default function App() {
   // Begin with a clean, friendly example; syntax-error samples remain available in presets.
-  const [code, setCode] = useState<string>(HELLO_WORLD_BY_LANGUAGE.java);
-  const [language, setLanguage] = useState<Language>("java");
+  const [code, setCode] = useState<string>(HELLO_WORLD_BY_LANGUAGE.javascript);
+  const [language, setLanguage] = useState<Language>("javascript");
   const [selectedPresetId, setSelectedPresetId] = useState<string>("");
 
   const [errors, setErrors] = useState<CodeError[]>([]);
@@ -229,8 +271,14 @@ export default function App() {
     setHasRunError(false);
 
     if (!hasBackendApi) {
-      setRunOutput("Code execution and AI analysis need the SyntaxFix server, which is not available on GitHub Pages. Run the desktop app or use a server-hosted deployment for these features.");
-      setHasRunError(true);
+      if (language === "javascript") {
+        const result = await runJavaScriptInBrowser(code);
+        setRunOutput(result.output);
+        setHasRunError(!result.success);
+      } else {
+        setRunOutput("GitHub Pages can run JavaScript in the browser. Java, Python, C, and C++ need the SyntaxFix server; use the desktop app or a server-hosted deployment for those languages.");
+        setHasRunError(true);
+      }
       setIsRunningCode(false);
       return;
     }
