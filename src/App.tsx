@@ -28,6 +28,11 @@ const HELLO_WORLD_BY_LANGUAGE: Record<Language, string> = {
   java: 'public class Main {\n  public static void main(String[] args) {\n    System.out.println("Hello, World!");\n  }\n}',
 };
 
+// GitHub Pages serves only the static frontend. Keep the local linter active
+// there, but do not send POST requests to API endpoints that Pages cannot run.
+const hasBackendApi =
+  typeof window === "undefined" || !window.location.hostname.endsWith(".github.io");
+
 function resolveErrorLineIndex(lines: string[], error: CodeError): number | null {
   const reportedIndex = error.line - 1;
   const snippet = error.codeSnippet.trim();
@@ -173,6 +178,12 @@ export default function App() {
     const localErrs = runLocalLinter(currentCode, currentLang);
     setErrors(localErrs);
 
+    if (!hasBackendApi) {
+      setFullFixedCode(currentCode);
+      setIsAnalyzing(false);
+      return;
+    }
+
     // 2. Call server AI linter for deep line-by-line syntax & semantic checks
     setIsAnalyzing(true);
     try {
@@ -216,6 +227,14 @@ export default function App() {
     setIsRunningCode(true);
     setRunOutput("");
     setHasRunError(false);
+
+    if (!hasBackendApi) {
+      setRunOutput("Code execution and AI analysis need the SyntaxFix server, which is not available on GitHub Pages. Run the desktop app or use a server-hosted deployment for these features.");
+      setHasRunError(true);
+      setIsRunningCode(false);
+      return;
+    }
+
     try {
       const response = await fetch("/api/run-code", {
         method: "POST",
