@@ -8,9 +8,11 @@ let backendProcess = null;
 const PORT = 3000;
 
 function startBackend() {
-  const serverPath = path.join(__dirname, "..", "dist", "server.cjs");
+  const rootDir = path.join(__dirname, "..");
+  const serverPath = path.join(rootDir, "dist", "server.cjs");
   backendProcess = spawn(process.execPath, [serverPath], {
-    env: { ...process.env, NODE_ENV: "production", PORT: String(PORT) },
+    cwd: rootDir,
+    env: { ...process.env, ELECTRON_RUN_AS_NODE: "1", NODE_ENV: "production", PORT: String(PORT) },
     windowsHide: true,
   });
   backendProcess.stdout.on("data", (d) => console.log("[backend]", d.toString().trim()));
