@@ -1,0 +1,6 @@
+{
+  "name": "SyntaxFix - Real-Time Code Error Detector",
+  "description": "Real-time code editor with line-by-line syntax error detection, instant auto-correct, and step-by-step self-correction guidance.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

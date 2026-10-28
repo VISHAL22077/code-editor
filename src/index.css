@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+/* Theme palette: components keep their compact Tailwind layout while these tokens
+   remap the slate UI surfaces for each appearance. */
+.app-shell { transition: background-color 180ms ease, color 180ms ease; }
+
+.theme-dark { color-scheme: dark; background-color: #000000; }
+.theme-dark [class*="bg-slate-950"] { background-color: #000000 !important; }
+.theme-dark [class*="bg-slate-900"] { background-color: #080808 !important; }
+.theme-dark [class*="bg-slate-800"] { background-color: #111111 !important; }
+.theme-dark [class*="bg-slate-700"] { background-color: #1a1a1a !important; }
+.theme-dark [class*="border-slate-"] { border-color: #262626 !important; }
+.theme-dark .code-editor { background: #0a0a0a !important; border-color: #262626 !important; }
+.theme-dark .editor-toolbar, .theme-dark .editor-gutter { background: #111111 !important; }
+
+.theme-light { color-scheme: light; }
+.theme-light [class*="bg-slate-950"] { background-color: #f8fafc !important; }
+.theme-light [class*="bg-slate-900"] { background-color: #ffffff !important; }
+.theme-light [class*="bg-slate-800"] { background-color: #f1f5f9 !important; }
+.theme-light [class*="bg-slate-700"] { background-color: #e2e8f0 !important; }
+.theme-light [class*="border-slate-"] { border-color: #cbd5e1 !important; }
+.theme-light [class*="text-slate-100"], .theme-light [class*="text-slate-200"] { color: #0f172a !important; }
+.theme-light [class*="text-slate-300"] { color: #334155 !important; }
+.theme-light [class*="text-slate-400"], .theme-light [class*="text-slate-500"], .theme-light [class*="text-slate-600"] { color: #64748b !important; }
+/* Keep white text reserved for controls that use a solid accent background. */
+.theme-light [class*="bg-white"] { background-color: rgb(15 23 42 / 12%) !important; }
+.theme-light [class*="from-white"] { --tw-gradient-from: #0f172a var(--tw-gradient-from-position) !important; --tw-gradient-to: rgb(15 23 42 / 0) var(--tw-gradient-to-position) !important; }
+.theme-light [class*="via-white"] { --tw-gradient-via: #0f172a var(--tw-gradient-via-position) !important; }
+.app-logo { background: #000000; color: #ffffff; }
+.app-title { color: #ffffff; }
+.theme-light .app-logo { background: #000000; color: #ffffff; }
+.theme-light .app-title { color: #111827; }
+.theme-light .app-header { box-shadow: 0 1px 10px rgb(15 23 42 / 8%); }
+.theme-light .code-editor { background: #ffffff !important; border-color: #cbd5e1 !important; box-shadow: 0 12px 28px rgb(15 23 42 / 9%); }
+.theme-light .editor-toolbar, .theme-light .editor-gutter { background: #f8fafc !important; }
+.theme-light textarea { color: #1e293b !important; caret-color: #4f46e5; }
+.theme-light textarea::placeholder { color: #94a3b8; }
+.theme-light [class*="bg-rose-950"] { background-color: #fff1f2 !important; }
+.theme-light [class*="bg-emerald-950"] { background-color: #ecfdf5 !important; }
+.theme-light [class*="bg-indigo-950"] { background-color: #eef2ff !important; }
