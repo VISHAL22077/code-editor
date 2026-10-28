@@ -383,4 +383,10 @@ async function startServer() {
   });
 }
 
-startServer();
+// Vercel imports the Express application as a serverless function. Local and
+// Electron builds retain the standalone listener used during development.
+if (!process.env.VERCEL) {
+  startServer();
+}
+
+export default app;
